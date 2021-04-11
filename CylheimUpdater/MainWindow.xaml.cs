@@ -21,14 +21,12 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using Downloader;
 using HttpProgress;
 using SharpCompress.Archives;
 using SharpCompress.Archives.SevenZip;
 using SharpCompress.Archives.Zip;
 using SharpCompress.Common;
 using SharpCompress.Readers;
-using YamlDotNet.Serialization;
 using Path = System.IO.Path;
 
 namespace CylheimUpdater
@@ -47,8 +45,6 @@ namespace CylheimUpdater
         };
 
         private Progress<ICopyProgress> DownloadProgress { get; } = new Progress<ICopyProgress>();
-        private DownloadService Downloader { get; }
-        private DownloadService VisualDownloader { get; }
         private string CylheimManifestUrl => "https://cdn.jsdelivr.net/gh/Horiztar/CylheimUpdater@master/Manifest/Cylheim.json";
         private string UpdaterManifestUrl => "https://cdn.jsdelivr.net/gh/Horiztar/CylheimUpdater@master/Manifest/CylheimUpdater.json";
         private string X64BitArch=>"win-x64";
