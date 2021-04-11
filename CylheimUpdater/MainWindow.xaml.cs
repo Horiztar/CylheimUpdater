@@ -249,7 +249,7 @@ namespace CylheimUpdater
 
                     if (extractList.Replenish.Any(i=>Path.GetRelativePath(i,path)=="."))
                     {
-                        continue;
+                        if(File.Exists(path)) continue;
                     }
 
                     try
