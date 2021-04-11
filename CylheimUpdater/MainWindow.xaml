@@ -6,14 +6,24 @@
         xmlns:local="clr-namespace:CylheimUpdater"
         mc:Ignorable="d"
         ResizeMode="CanMinimize"
-        Title="Cylheim Updater" Height="450" Width="800"
+        Title="Cylheim Updater" Height="Auto" Width="Auto"
         SizeToContent="WidthAndHeight">
     <Grid>
-        <StackPanel>
-            <Border Padding="20">
-                <StackPanel HorizontalAlignment="Right">
-                    
-                </StackPanel>
+        <StackPanel Margin="20" Width="300">
+            <ProgressBar Name="ProgressBar" Height="15"></ProgressBar>
+            <DockPanel Margin="0,5,0,0">
+                <TextBlock Name="DownloadStatus">Ready</TextBlock>
+                <TextBlock Name="PercentText" HorizontalAlignment="Right">0%</TextBlock>
+            </DockPanel>
+            <TextBox x:Name="InfoTextBox" Margin="0,10,0,0" Height="100" IsReadOnly="True">
+
+            </TextBox>
+            <Border Margin="0,10,0,0">
+                <DockPanel HorizontalAlignment="Stretch">
+                    <Button x:Name="CancelButton" Padding="5" IsEnabled="False">Cancel</Button>
+                    <Button x:Name="UpdateButton" Padding="5" DockPanel.Dock="Right" HorizontalAlignment="Right"
+                            Click="UpdateButton_Click">Update</Button>
+                </DockPanel>
             </Border>
         </StackPanel>
     </Grid>

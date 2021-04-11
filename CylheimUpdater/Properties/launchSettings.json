@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "CylheimUpdater": {
+      "commandName": "Project",
+      "commandLineArgs": "--ignore-updater-version"
+    }
+  }
+}
