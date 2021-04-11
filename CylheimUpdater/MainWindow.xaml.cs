@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -55,6 +56,7 @@ namespace CylheimUpdater
         private string CylheimExeName => "Cylheim.exe";
         private string CylheimUpdaterExeName => "CylheimUpdater.exe";
         internal static string CylheimUpdaterOldExeName => "CylheimUpdater_old.exe";
+        private CancellationTokenSource CancelSource { get; set; }
 
         public MainWindow()
         {
@@ -64,7 +66,8 @@ namespace CylheimUpdater
             
             DownloadProgress.ProgressChanged += ((sender, progress) =>
             {
-                SetProgress(Math.Round(progress.PercentComplete * 100,2));
+                if(!CancelSource.IsCancellationRequested)
+                    SetProgress(Math.Round(progress.PercentComplete * 100,2));
             });
         }
 
@@ -84,13 +87,12 @@ namespace CylheimUpdater
 
         private void UpdateButton_Click(object sender, RoutedEventArgs e)
         {
-            
             StartUpdate();
-
         }
 
         private void StartUpdate()
         {
+            CancelSource = new CancellationTokenSource();
             Task.Run(async () =>
             {
                 SetProcessing(true);
@@ -98,24 +100,27 @@ namespace CylheimUpdater
                 try
                 {
                     await UpdateUpdater();
+                    await UpdateCylheim();
+                }
+                catch (OperationCanceledException e)
+                {
+                    AppendInfo($"Update cancelled.");
                 }
                 catch (Exception e)
                 {
-                    Dispatcher.Invoke(() =>
-                    {
-                        MessageBox.Show(this, e.GetDetail(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    });
+                    DispatcherShowError(e.GetDetail());
                 }
                 finally
                 {
                     SetProcessing(false);
                     SetProgress(-1);
                 }
-            });
+            },CancelSource.Token);
         }
 
         internal void StartUpdateIgnoreUpdaterVersion()
         {
+            CancelSource = new CancellationTokenSource();
             Task.Run(async () =>
             {
                 SetProcessing(true);
@@ -124,19 +129,20 @@ namespace CylheimUpdater
                 {
                     await UpdateCylheim();
                 }
+                catch (OperationCanceledException e)
+                {
+                    AppendInfo($"Update cancelled.");
+                }
                 catch (Exception e)
                 {
-                    Dispatcher.Invoke(() =>
-                    {
-                        MessageBox.Show(this, e.GetDetail(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    });
+                    DispatcherShowError(e.GetDetail());
                 }
                 finally
                 {
                     SetProcessing(false);
                     SetProgress(-1);
                 }
-            });
+            },CancelSource.Token);
         }
 
         private async Task UpdateUpdater()
@@ -208,17 +214,18 @@ namespace CylheimUpdater
             var archName = isX64 ? X64BitArch : X86BitArch;
             var installer = package.Installers.FirstOrDefault(p => p.Architecture == archName);
             AppendInfo($"Architecture: {installer.Architecture}");
-
-            if (!(await CloseCylheim()))
-            {
-                AppendInfo($"Update cancelled.");
-                return;
-            }
-
+            
             using (var stream = await DownloadFromUrl(installer.Url))
             //using (var stream = File.OpenRead("Cylheim_1.1.3_win-x64.7z"))
             {
+                if (!(await CloseCylheim()))
+                {
+                    AppendInfo($"Update cancelled.");
+                    return;
+                }
+
                 AppendInfo($"Extracting...");
+                SetProgress(101);
                 IArchive archive = null;
                 if(installer.InstallerType=="7z") archive=SevenZipArchive.Open(stream);
                 else if(installer.InstallerType=="zip") archive=ZipArchive.Open(stream);
@@ -232,6 +239,7 @@ namespace CylheimUpdater
 
                 foreach (var entry in archive.Entries)
                 {
+                    if (CancelSource.IsCancellationRequested) throw new OperationCanceledException();
                     var path = Path.GetRelativePath( extractList.Root, entry.Key);
                     var filename = Path.GetFileName(path);
 
@@ -259,6 +267,7 @@ namespace CylheimUpdater
                 }
             }
 
+            if (CancelSource.IsCancellationRequested) throw new OperationCanceledException();
             AppendInfo($"Update complete.");
             SetProgress(100);
             Process.Start(CylheimExeName);
@@ -266,7 +275,7 @@ namespace CylheimUpdater
 
         private async Task<string> GetTextFromUrl(string url)
         {
-            var response = await HttpClient.GetStringAsync(url);
+            var response = await HttpClient.GetStringAsync(url,CancelSource.Token);
 
             return response;
         }
@@ -275,7 +284,7 @@ namespace CylheimUpdater
         {
             url = await GetRedirectedUrl(url) ?? url;
             MemoryStream stream = new();
-            var response = await HttpClient.GetAsync(url,stream,DownloadProgress);
+            var response = await HttpClient.GetAsync(url,stream,DownloadProgress,CancelSource.Token);
             return stream;
         }
         
@@ -371,6 +380,7 @@ namespace CylheimUpdater
                     DownloadStatus.Text = "Ready";
                     PercentText.Text = "";
                     ProgressBar.IsIndeterminate = false;
+                    ProgressBar.Value = 0;
                 }
                 else if(percent<100)
                 {
@@ -383,6 +393,7 @@ namespace CylheimUpdater
                     DownloadStatus.Text = "Finish";
                     PercentText.Text = $"{percent}%";
                     ProgressBar.IsIndeterminate = false;
+                    ProgressBar.Value = 100;
                 }
                 else
                 {
@@ -390,6 +401,14 @@ namespace CylheimUpdater
                     PercentText.Text = $"";
                     ProgressBar.IsIndeterminate = true;
                 }
+            });
+        }
+
+        private void DispatcherShowError(string error)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                MessageBox.Show(this, error, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             });
         }
 
@@ -403,5 +422,12 @@ namespace CylheimUpdater
         }
 
         private static string BytesToString(byte[] bytes) => BitConverter.ToString(bytes).Replace("-", "");
+
+        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            CancelSource.Cancel();
+            SetProcessing(false);
+            SetProgress(-1);
+        }
     }
 }
