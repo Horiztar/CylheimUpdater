@@ -10,7 +10,7 @@
         SizeToContent="WidthAndHeight">
     <Grid>
         <StackPanel Margin="20" Width="500">
-            <ProgressBar Name="ProgressBar" Height="15"></ProgressBar>
+            <ProgressBar Name="ProgressBar" Height="15" Maximum="1" LargeChange="0.1" SmallChange="0.01"></ProgressBar>
             <DockPanel Margin="0,5,0,0">
                 <TextBlock Name="DownloadStatus">Ready</TextBlock>
                 <TextBlock Name="PercentText" HorizontalAlignment="Right">0%</TextBlock>

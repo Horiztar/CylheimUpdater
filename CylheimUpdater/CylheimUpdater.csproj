@@ -5,11 +5,25 @@
     <TargetFramework>net5.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
 	  <RuntimeIdentifiers>win-x86</RuntimeIdentifiers>
+	  <Version>1.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\7z.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="bloomtom.HttpProgress" Version="2.3.2" />
+    <PackageReference Include="SevenZipSharp.Interop" Version="19.0.1" />
     <PackageReference Include="SharpCompress" Version="0.28.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <SevenZipSharpInteropFiles Remove="Resources\7z.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\7z.dll" />
   </ItemGroup>
 
 </Project>
