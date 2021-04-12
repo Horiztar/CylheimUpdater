@@ -24,11 +24,6 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using HttpProgress;
 using SevenZip;
-using SharpCompress.Archives;
-using SharpCompress.Archives.SevenZip;
-using SharpCompress.Archives.Zip;
-using SharpCompress.Common;
-using SharpCompress.Readers;
 using Path = System.IO.Path;
 
 namespace CylheimUpdater
@@ -38,23 +33,6 @@ namespace CylheimUpdater
     /// </summary>
     public partial class MainWindow : Window
     {
-        private HttpClient HttpClient { get; } = new HttpClient(new HttpClientHandler()
-        {
-            AllowAutoRedirect = true
-        })
-        {
-            Timeout = TimeSpan.FromSeconds(10),
-        };
-
-        private Progress<ICopyProgress> DownloadProgress { get; } = new Progress<ICopyProgress>();
-        private string CylheimManifestUrl => "https://cdn.jsdelivr.net/gh/Horiztar/CylheimUpdater@latest/Manifest/Cylheim.json";
-        private string UpdaterManifestUrl => "https://cdn.jsdelivr.net/gh/Horiztar/CylheimUpdater@latest/Manifest/CylheimUpdater.json";
-        private string X64BitArch=>"win-x64";
-        private string X86BitArch => "win-x86";
-        
-        private string CylheimUpdaterExeName => "CylheimUpdater.exe";
-        internal static string CylheimUpdaterOldExeName => "CylheimUpdater_old.exe";
-        private WebUtil WebUtil { get; set; }
         public Updater Updater { get; } = new Updater();
 
         public MainWindow()
@@ -65,6 +43,12 @@ namespace CylheimUpdater
             {
                 Dispatcher.Invoke(() =>
                 {
+                    var idle = args.Status is UpdaterStatus.Ready or UpdaterStatus.Complete;
+                    UpdateButton.IsEnabled = idle;
+                    CancelButton.IsEnabled = !idle;
+
+                    if (Updater.IsCancelled && !idle) return;
+                    
                     DownloadStatus.Text = args.Status.ToString();
 
                     var progress = args.Progress;
@@ -82,86 +66,29 @@ namespace CylheimUpdater
                     InfoTextBox.AppendText("\n");
                 });
             });
+
+            Updater.ErrorOccurred += Updater_ErrorOccurred;
+        }
+
+        internal void Updater_ErrorOccurred(object sender, Exception e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                MessageBox.Show(this, e.GetDetail(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            });
         }
 
         private void UpdateButton_Click(object sender, RoutedEventArgs e)
         {
-            Updater.StartUpdate();
-        }
-        
-
-        
-        private async Task UpdateCylheim()
-        {
-            
-        }
-
-        
-
-        private void AppendInfo(string text)
-        {
-            Dispatcher.Invoke(() =>
+            Task.Run(async () =>
             {
-                InfoTextBox.AppendText(text);
-                InfoTextBox.AppendText("\n");
-            });
-        }
-
-        private void SetProcessing(bool isProcessing)
-        {
-            Dispatcher.Invoke(() =>
-            {
-                UpdateButton.IsEnabled = !isProcessing;
-                CancelButton.IsEnabled = isProcessing;
-            });
-        }
-
-        private void SetProgress(double percent)
-        {
-            Dispatcher.Invoke(() =>
-            {
-                if (percent < 0)
-                {
-                    DownloadStatus.Text = "Ready";
-                    PercentText.Text = "";
-                    ProgressBar.IsIndeterminate = false;
-                    ProgressBar.Value = 0;
-                }
-                else if(percent<100)
-                {
-                    DownloadStatus.Text = "Downloading...";
-                    PercentText.Text = $"{percent}%";
-                    ProgressBar.IsIndeterminate = false;
-                    ProgressBar.Value = percent;
-                }else if (percent == 100)
-                {
-                    DownloadStatus.Text = "Finish";
-                    PercentText.Text = $"{percent}%";
-                    ProgressBar.IsIndeterminate = false;
-                    ProgressBar.Value = 100;
-                }
-                else
-                {
-                    DownloadStatus.Text = "Processing...";
-                    PercentText.Text = $"";
-                    ProgressBar.IsIndeterminate = true;
-                }
-            });
-        }
-
-        private void DispatcherShowError(string error)
-        {
-            Dispatcher.Invoke(() =>
-            {
-                MessageBox.Show(this, error, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                await Updater.StartUpdate();
             });
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
-            //WebUtil.CancelSource.Cancel();
-            SetProcessing(false);
-            SetProgress(-1);
+            Updater.CancelUpdate();
         }
 
         private static byte[] GetHashSha256(string filename)

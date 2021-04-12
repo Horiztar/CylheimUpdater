@@ -25,10 +25,12 @@ namespace CylheimUpdater
         
         public event EventHandler<string> InfoSent;
         public event EventHandler<UpdaterProgressArgs> ProgressChanged;
+        public event EventHandler<Exception> ErrorOccurred;
 
 
         private WebUtil WebUtil { get; } = new WebUtil();
         private CancellationTokenSource CancelSource { get; set; }
+        internal bool IsCancelled => CancelSource.IsCancellationRequested;
         
 
         public Updater()
@@ -41,9 +43,9 @@ namespace CylheimUpdater
 
         internal async Task StartUpdate(bool ignoreUpdater=false)
         {
-            ProgressChanged?.Invoke(this,new(UpdaterStatus.Connecting,-1));
-
             CancelSource = new CancellationTokenSource();
+
+            ProgressChanged?.Invoke(this,new(UpdaterStatus.Connecting,-1));
 
             bool complete = false;
 
@@ -53,17 +55,18 @@ namespace CylheimUpdater
 
                 if (!ignoreUpdater) await UpdateUpdater();
                 await UpdateCylheim();
-                
+
+                Process.Start(CylheimService.CylheimExeName);
                 complete = true;
             }
             catch (OperationCanceledException e)
             {
-
+                InfoSent?.Invoke(this,"Update cancelled.");
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
-                throw;
+                ErrorOccurred?.Invoke(this,e);
+                InfoSent?.Invoke(this, "Update unexpectedly interrupted.");
             }
             finally
             {
@@ -165,13 +168,17 @@ namespace CylheimUpdater
                 if (!(await CylheimService.CloseCylheim()))
                 {
                     InfoSent?.Invoke(this, "Update cancelled.");
-                    return;
+                    throw new OperationCanceledException();
                 }
                 
                 ProgressChanged?.Invoke(this,new(UpdaterStatus.Extracting,-1));
                 InfoSent?.Invoke(this, "Extracting...");
 
-                SevenZipUtil.Init7zDll();
+                try
+                {
+                    SevenZipUtil.Init7zDll();
+                }catch(Exception e){}
+
                 SevenZip.SevenZipExtractor extractor = new SevenZipExtractor(stream);
                 var infos = extractor.ArchiveFileData;
 
@@ -210,73 +217,33 @@ namespace CylheimUpdater
                     }
                     try
                     {
-                        //var dst = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),directory);
-                        //info.FileName = filename;
-                        //extractor.ExtractFiles(dst,i);
-
+                        if (CancelSource.IsCancellationRequested) throw new OperationCanceledException();
                         using (var fileStream = File.Create(path))
                         {
-                            extractor.ExtractFile(i,fileStream);
+                            extractor.ExtractFile(i, fileStream);
                         }
+                        if (CancelSource.IsCancellationRequested) throw new OperationCanceledException();
 
                         var attr = (FileAttributes)info.Attributes;
-                        File.SetAttributes(path,attr);
+                        File.SetAttributes(path, attr);
                         File.SetCreationTime(path, info.CreationTime);
-                        File.SetLastAccessTime(path,info.LastAccessTime);
-                        File.SetLastWriteTime(path,info.LastWriteTime);
+                        File.SetLastAccessTime(path, info.LastAccessTime);
+                        File.SetLastWriteTime(path, info.LastWriteTime);
                     }
                     catch (IOException e)
                     {
                         if (filename != CylheimUpdaterExeName) throw e;
                     }
+
+                    if (CancelSource.IsCancellationRequested) throw new OperationCanceledException();
                 }
-
-                //IArchive archive = null;
-                //if (installer.InstallerType == "7z") archive = SevenZipArchive.Open(stream);
-                //else if (installer.InstallerType == "zip") archive = ZipArchive.Open(stream);
-                //var extractList = JsonSerializer.Deserialize<ExtractList>(installer.InstallerArgs);
-                //var reader = archive.ExtractAllEntries();
-                //ExtractionOptions options = new ExtractionOptions()
-                //{
-                //    Overwrite = true,
-                //    PreserveFileTime = true,
-                //    PreserveAttributes = true
-                //};
-                //foreach (var entry in archive.Entries)
-                //{
-                //    if (CancelSource.IsCancellationRequested) throw new OperationCanceledException();
-                //    var path = Path.GetRelativePath(extractList.Root, entry.Key);
-                //    var filename = Path.GetFileName(path);
-                //    var directory = Path.GetDirectoryName(path);
-
-                    //    if (path == ".") continue;
-
-                    //    if (entry.IsDirectory)
-                    //    {
-                    //        if (!Directory.Exists(path)) Directory.CreateDirectory(path);
-                    //        continue;
-                    //    }
-
-                    //    if (extractList.Replenish.Any(i => Path.GetRelativePath(i, path) == "."))
-                    //    {
-                    //        if (File.Exists(path)) continue;
-                    //    }
-
-                    //    try
-                    //    {
-                    //        entry.WriteToFile(path, options);
-                    //    }
-                    //    catch (IOException e)
-                    //    {
-                    //        if (filename != CylheimUpdaterExeName) throw e;
-                    //    }
-                    //}
-                }
+                
+            }
 
             //if (WebUtil.CancelSource.IsCancellationRequested) throw new OperationCanceledException();
+            if (CancelSource.IsCancellationRequested) throw new OperationCanceledException();
             //AppendInfo($"Update complete.");
             //SetProgress(100);
-            Process.Start(CylheimService.CylheimExeName);
         }
 
         private async Task<Package> GetManifest(Dictionary<RegionInfo, string> urls)
@@ -319,6 +286,11 @@ namespace CylheimUpdater
                     }
                 }
             }
+        }
+
+        internal void CancelUpdate()
+        {
+            CancelSource.Cancel();
         }
     }
 

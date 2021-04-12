@@ -19,7 +19,6 @@ namespace CylheimUpdater
         {
             DispatcherUnhandledException += ((sender, args) =>
             {
-
             });
         }
         private string DeleteOldUpdaterCommand => "--delete-old";
@@ -29,6 +28,7 @@ namespace CylheimUpdater
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
             CylheimUpdater.MainWindow mainWindow = new MainWindow();
+            Current.MainWindow = mainWindow;
 
             mainWindow.Updater.DeleteOldUpdater();
 

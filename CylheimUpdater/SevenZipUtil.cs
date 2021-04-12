@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Reflection;
+using System.Windows;
 
 namespace CylheimUpdater
 {
@@ -15,7 +17,11 @@ namespace CylheimUpdater
                 stream.Seek(0, SeekOrigin.Begin);
                 stream.CopyTo(writer);
             }
-            SevenZip.SevenZipBase.SetLibraryPath("7z.dll");
+
+            var libraryPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "7z.dll");
+
+            SevenZip.SevenZipBase.SetLibraryPath(libraryPath);
+
         }
     }
 }

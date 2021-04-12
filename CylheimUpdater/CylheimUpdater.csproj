@@ -15,7 +15,6 @@
   <ItemGroup>
     <PackageReference Include="bloomtom.HttpProgress" Version="2.3.2" />
     <PackageReference Include="SevenZipSharp.Interop" Version="19.0.1" />
-    <PackageReference Include="SharpCompress" Version="0.28.1" />
   </ItemGroup>
 
   <ItemGroup>
