@@ -65,7 +65,7 @@ namespace CylheimUpdater
         internal async Task InitRoute(CancellationToken token)
         {
 #if DEBUG
-            string geoText = File.ReadAllText("../../../../IpGeolocation.json");
+            string geoText = File.ReadAllText("../../../../../IpGeolocation.json");
 #elif RELEASE
             string geoText = await HttpClient.GetStringAsync(IpGeolocationApi, token);
 #endif

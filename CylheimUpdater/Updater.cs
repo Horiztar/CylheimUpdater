@@ -19,6 +19,7 @@ namespace CylheimUpdater
         private static string X86BitArch => "win-x86";
         private static string CylheimUpdaterExeName => "CylheimUpdater.exe";
         private static string CylheimUpdaterOldExeName => "CylheimUpdater_old.exe";
+        internal static string IgnoreUpdaterVersionCommand => "--ignore-updater-version";
 
         public event EventHandler<string> InfoSent;
         public event EventHandler<UpdaterProgressArgs> ProgressChanged;
@@ -76,7 +77,7 @@ namespace CylheimUpdater
         {
             InfoSent?.Invoke(this, "Getting updater's manifest...");
 #if DEBUG
-            var packageText = File.ReadAllText("../../../../Manifest/CylheimUpdater.json");
+            var packageText = File.ReadAllText("../../../../../Manifest/CylheimUpdater.json");
             var package = JsonSerializer.Deserialize<Package>(packageText);
 #elif RELEASE
             var package = await GetManifest(new Dictionary<RegionInfo, string>()
@@ -113,7 +114,7 @@ namespace CylheimUpdater
                 stream.CopyTo(fileStream);
             }
 
-            Process.Start(CylheimUpdaterExeName);
+            Process.Start(CylheimUpdaterExeName, IgnoreUpdaterVersionCommand);
             App.Current.Dispatcher.Invoke(() => App.Current.Shutdown());
         }
 
@@ -122,7 +123,7 @@ namespace CylheimUpdater
             InfoSent?.Invoke(this, "Getting Cylheim's manifest...");
 
 #if DEBUG
-            var packageText = File.ReadAllText("../../../../Manifest/Cylheim.json");
+            var packageText = File.ReadAllText("../../../../../Manifest/Cylheim.json");
             var package = JsonSerializer.Deserialize<Package>(packageText);
 #elif RELEASE
             var package = await GetManifest(new Dictionary<RegionInfo, string>()
@@ -190,7 +191,7 @@ namespace CylheimUpdater
                     var totalPercent = completeSize / totalSize + thisSize / totalSize * ((decimal)e.PercentDone / 100);
                     ProgressChanged?.Invoke(this, new(UpdaterStatus.Extracting, (double)totalPercent));
                 };
-                var extractList = JsonSerializer.Deserialize<ExtractList>(installer.InstallerArgs);
+                var extractList = JsonSerializer.Deserialize<Cylheim7zInstaller>(installer.InstallerArgs);
 
                 for (int i = 0; i < infos.Count; i++)
                 {
@@ -240,6 +241,7 @@ namespace CylheimUpdater
             }
 
             if (CancelSource.IsCancellationRequested) throw new OperationCanceledException();
+            
         }
 
         private async Task<Package> GetManifest(Dictionary<RegionInfo, string> urls)

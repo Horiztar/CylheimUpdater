@@ -5,18 +5,13 @@
 		<TargetFramework>net5.0-windows</TargetFramework>
 		<UseWPF>true</UseWPF>
 		<RuntimeIdentifiers>win-x86</RuntimeIdentifiers>
-		<Version>1.0</Version>
+		<Version>0.9</Version>
 		<Platforms>AnyCPU;x86</Platforms>
 		<DebugType>embedded</DebugType>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
 	  <PlatformTarget>AnyCPU</PlatformTarget>
-	  <Prefer32Bit>true</Prefer32Bit>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-	  <Prefer32Bit>true</Prefer32Bit>
 	</PropertyGroup>
 
   <ItemGroup>

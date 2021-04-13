@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Threading.Tasks;
+using System.Windows;
 
 namespace CylheimUpdater
 {
@@ -13,9 +14,7 @@ namespace CylheimUpdater
             {
             });
         }
-        private string DeleteOldUpdaterCommand => "--delete-old";
 
-        internal string IgnoreUpdaterVersionCommand => "--ignore-updater-version";
 
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
@@ -28,9 +27,12 @@ namespace CylheimUpdater
 
             foreach (var arg in e.Args)
             {
-                if (arg == IgnoreUpdaterVersionCommand)
+                if (arg == Updater.IgnoreUpdaterVersionCommand)
                 {
-                    mainWindow.Updater.StartUpdate(true);
+                    Task.Run(async () =>
+                    {
+                        await mainWindow.Updater.StartUpdate(true);
+                    });
                 }
             }
         }
