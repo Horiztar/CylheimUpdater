@@ -1,15 +1,14 @@
 ﻿using System;
 using System.IO;
-using System.Reflection;
-using System.Windows;
 
 namespace CylheimUpdater
 {
     public class SevenZipUtil
     {
-        public static void Init7zDll()
+        public static void Init7zDll(bool isX64=false)
         {
-            Uri uri = new Uri("pack://application:,,,/CylheimUpdater;component/Resources/7z.dll");
+            string arch = isX64 ? "x64" : "x86";
+            Uri uri = new Uri($"pack://application:,,,/CylheimUpdater;component/Resources/x86/7z.dll");
             var resource = App.GetResourceStream(uri);
             var stream = resource.Stream;
             using (var writer = File.Create("7z.dll"))

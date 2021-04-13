@@ -1,24 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net5.0-windows</TargetFramework>
-    <UseWPF>true</UseWPF>
-	  <RuntimeIdentifiers>win-x86</RuntimeIdentifiers>
-	  <Version>1.0.0</Version>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <None Remove="Resources\7z.dll" />
-  </ItemGroup>
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net5.0-windows</TargetFramework>
+		<UseWPF>true</UseWPF>
+		<RuntimeIdentifiers>win-x86</RuntimeIdentifiers>
+		<Version>1.0.0</Version>
+		<Platforms>AnyCPU;x86</Platforms>
+		<DebugType>embedded</DebugType>
+	</PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="bloomtom.HttpProgress" Version="2.3.2" />
-    <PackageReference Include="SevenZipSharp.Interop" Version="19.0.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <SevenZipSharpInteropFiles Remove="Resources\7z.dll" />
+    <PackageReference Include="Squid-Box.SevenZipSharp" Version="1.3.318" />
   </ItemGroup>
 
   <ItemGroup>

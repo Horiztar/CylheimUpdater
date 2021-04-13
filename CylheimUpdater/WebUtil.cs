@@ -1,5 +1,5 @@
-﻿using System;
-using System.Diagnostics;
+﻿using HttpProgress;
+using System;
 using System.Globalization;
 using System.IO;
 using System.Net.Http;
@@ -7,7 +7,6 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using HttpProgress;
 
 namespace CylheimUpdater
 {
@@ -16,7 +15,7 @@ namespace CylheimUpdater
         private static string IpApi => "https://api.ipify.org/";
         private static string IpGeolocationApi => "http://ip-api.com/json";
         private HttpClient HttpClient { get; } = new HttpClient();
-        internal RegionInfo Region { get;private set; }
+        internal RegionInfo Region { get; private set; }
         private CancellationToken CancelToken { get; set; }
         internal Progress<ICopyProgress> DownloadProgress { get; } = new Progress<ICopyProgress>();
 
@@ -31,7 +30,7 @@ namespace CylheimUpdater
             string redirectedUrl = null;
 
             using (HttpClient client = new HttpClient(handler))
-            using (HttpResponseMessage response = await client.GetAsync(url,CancelToken))
+            using (HttpResponseMessage response = await client.GetAsync(url, CancelToken))
             using (HttpContent content = response.Content)
             {
                 // ... Read the response to see if we have the redirected url
@@ -68,7 +67,7 @@ namespace CylheimUpdater
 #if DEBUG
             string geoText = File.ReadAllText("../../../../IpGeolocation.json");
 #elif RELEASE
-            string geoText = await HttpClient.GetStringAsync(IpGeolocationApi,token);
+            string geoText = await HttpClient.GetStringAsync(IpGeolocationApi, token);
 #endif
 
             IpGeolocation geolocation = JsonSerializer.Deserialize<IpGeolocation>(geoText);

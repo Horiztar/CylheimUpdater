@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace CylheimUpdater
 {
@@ -15,7 +12,7 @@ namespace CylheimUpdater
         public List<Installer> Installers { get; set; }
 
         [JsonIgnore]
-        public Version LatestVersion=>System.Version.Parse(Version);
+        public Version LatestVersion => System.Version.Parse(Version);
     }
 
     class Installer
@@ -27,5 +24,5 @@ namespace CylheimUpdater
         public string InstallerArgs { get; set; }
     }
 
-    
+
 }

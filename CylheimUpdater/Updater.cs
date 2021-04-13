@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SevenZip;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -8,10 +9,6 @@ using System.Reflection;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Threading;
-using HttpProgress;
-using SevenZip;
 
 namespace CylheimUpdater
 {
@@ -22,7 +19,7 @@ namespace CylheimUpdater
         private static string X86BitArch => "win-x86";
         private static string CylheimUpdaterExeName => "CylheimUpdater.exe";
         private static string CylheimUpdaterOldExeName => "CylheimUpdater_old.exe";
-        
+
         public event EventHandler<string> InfoSent;
         public event EventHandler<UpdaterProgressArgs> ProgressChanged;
         public event EventHandler<Exception> ErrorOccurred;
@@ -31,7 +28,7 @@ namespace CylheimUpdater
         private WebUtil WebUtil { get; } = new WebUtil();
         private CancellationTokenSource CancelSource { get; set; }
         internal bool IsCancelled => CancelSource.IsCancellationRequested;
-        
+
 
         public Updater()
         {
@@ -41,11 +38,11 @@ namespace CylheimUpdater
             });
         }
 
-        internal async Task StartUpdate(bool ignoreUpdater=false)
+        internal async Task StartUpdate(bool ignoreUpdater = false)
         {
             CancelSource = new CancellationTokenSource();
 
-            ProgressChanged?.Invoke(this,new(UpdaterStatus.Connecting,-1));
+            ProgressChanged?.Invoke(this, new(UpdaterStatus.Connecting, -1));
 
             bool complete = false;
 
@@ -61,16 +58,16 @@ namespace CylheimUpdater
             }
             catch (OperationCanceledException e)
             {
-                InfoSent?.Invoke(this,"Update cancelled.");
+                InfoSent?.Invoke(this, "Update cancelled.");
             }
             catch (Exception e)
             {
-                ErrorOccurred?.Invoke(this,e);
+                ErrorOccurred?.Invoke(this, e);
                 InfoSent?.Invoke(this, "Update unexpectedly interrupted.");
             }
             finally
             {
-                if(complete) ProgressChanged?.Invoke(this, new(UpdaterStatus.Complete, 1));
+                if (complete) ProgressChanged?.Invoke(this, new(UpdaterStatus.Complete, 1));
                 else ProgressChanged?.Invoke(this, new(UpdaterStatus.Ready, 0));
             }
         }
@@ -88,7 +85,7 @@ namespace CylheimUpdater
                 {new RegionInfo("CN"),"https://cylheim-1305581578.cos.ap-guangzhou.myqcloud.com/CylheimUpdater_CN.json"}
             });
 #endif
-            
+
 
             var currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
             var latestVersion = package.LatestVersion;
@@ -97,7 +94,7 @@ namespace CylheimUpdater
                 InfoSent?.Invoke(this, "Updater is up to date.");
                 return;
             }
-            
+
             InfoSent?.Invoke(this, "Downloading latest updater...");
             var stream = await WebUtil.DownloadFromUrl(package.Installers[0].Url);
 
@@ -153,7 +150,7 @@ namespace CylheimUpdater
                     return;
                 }
             }
-            
+
             InfoSent?.Invoke(this, "Downloading Cylheim...");
             var isX64 = Environment.Is64BitOperatingSystem;
             var archName = isX64 ? X64BitArch : X86BitArch;
@@ -170,14 +167,16 @@ namespace CylheimUpdater
                     InfoSent?.Invoke(this, "Update cancelled.");
                     throw new OperationCanceledException();
                 }
-                
-                ProgressChanged?.Invoke(this,new(UpdaterStatus.Extracting,-1));
+
+                ProgressChanged?.Invoke(this, new(UpdaterStatus.Extracting, -1));
                 InfoSent?.Invoke(this, "Extracting...");
 
                 try
                 {
-                    SevenZipUtil.Init7zDll();
-                }catch(Exception e){}
+                    SevenZipUtil.Init7zDll(isX64);
+                }
+                catch (Exception e) { }
+
 
                 SevenZip.SevenZipExtractor extractor = new SevenZipExtractor(stream);
                 var infos = extractor.ArchiveFileData;
@@ -237,13 +236,10 @@ namespace CylheimUpdater
 
                     if (CancelSource.IsCancellationRequested) throw new OperationCanceledException();
                 }
-                
+
             }
 
-            //if (WebUtil.CancelSource.IsCancellationRequested) throw new OperationCanceledException();
             if (CancelSource.IsCancellationRequested) throw new OperationCanceledException();
-            //AppendInfo($"Update complete.");
-            //SetProgress(100);
         }
 
         private async Task<Package> GetManifest(Dictionary<RegionInfo, string> urls)

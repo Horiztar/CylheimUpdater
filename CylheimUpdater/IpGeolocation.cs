@@ -15,14 +15,14 @@ namespace CylheimUpdater
         [JsonPropertyName("regionName")]
         public string RegionName { get; set; }
         [JsonPropertyName("city")]
-        public string  City { get; set; }
+        public string City { get; set; }
         [JsonPropertyName("zip")]
         public string Zip { get; set; }
         [JsonPropertyName("lat")]
         public double Lat { get; set; }
         [JsonPropertyName("lon")]
         public double Lon { get; set; }
-        [JsonPropertyName("timezone")] 
+        [JsonPropertyName("timezone")]
         public string Timezone { get; set; }
         [JsonPropertyName("isp")]
         public string Isp { get; set; }
