@@ -6,14 +6,14 @@
       {
         "Architecture": "win-x64",
         "Sha256": "",
-        "Url": "https://github.com/Horiztar/Cylheim-Windows/releases/download/v1.7.2/Cylheim_1.7.1_win-x64.7z",
+        "Url": "https://github.com/Horiztar/Cylheim-Windows/releases/download/v1.7.1/Cylheim_1.7.1_win-x64.7z",
         "InstallerType": "7z",
         "InstallerArgs": "{\"Root\":\"win-x64\",\"Replenish\":[]}"
       },
       {
         "Architecture": "win-x86",
         "Sha256": "",
-        "Url": "https://github.com/Horiztar/Cylheim-Windows/releases/download/v1.7.2/Cylheim_1.7.1_win-x86.7z",
+        "Url": "https://github.com/Horiztar/Cylheim-Windows/releases/download/v1.7.1/Cylheim_1.7.1_win-x86.7z",
         "InstallerType": "7z",
         "InstallerArgs": "{\"Root\":\"win-x86\",\"Replenish\":[]}"
       }
