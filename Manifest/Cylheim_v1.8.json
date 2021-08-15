@@ -1,14 +1,14 @@
 {
   "Name": "Cylheim",
-  "Version": "1.8.4.0",
+  "Version": "2.0.0.0",
   "Description": null,
-  "DotNetVer": "6.0.0-preview.5.21301.4",
+  "DotNetVer": "6.0.0-preview.6.21353.1",
   "Installers": [
     {
       "Architecture": "win-x64",
       "Sha256": "",
-      "Url": "https://github.com/Horiztar/Cylheim-Windows/releases/download/v1.8.4/Cylheim_1.8.4_win-x64.7z",
-      "DotNetUrl":"https://download.visualstudio.microsoft.com/download/pr/3e0ae708-2bc5-4470-8836-67d64eb24eda/0c4342f2e8c032d461a64c9b72881106/windowsdesktop-runtime-6.0.0-preview.5.21301.4-win-x64.exe",
+      "Url": "https://github.com/Horiztar/Cylheim-Windows/releases/download/v2.0/Cylheim_2.0_win-x64.7z",
+      "DotNetUrl":"https://download.visualstudio.microsoft.com/download/pr/b6bef7e7-7d36-41fa-a937-119a786bdae3/b8251935ec30137f6d83dab3e6f1f12c/windowsdesktop-runtime-6.0.0-preview.6.21353.1-win-x64.exe",
       "InstallerType": "7z",
       "InstallerArgs": {
         "Root": "win-x64",
@@ -18,8 +18,8 @@
     {
       "Architecture": "win-x86",
       "Sha256": "",
-      "Url": "https://github.com/Horiztar/Cylheim-Windows/releases/download/v1.8.4/Cylheim_1.8.4_win-x86.7z",
-      "DotNetUrl":"https://download.visualstudio.microsoft.com/download/pr/30fbf394-c4e3-4340-aed8-c881e03b27c9/53a2b97e08e9adec809ed21267406a39/windowsdesktop-runtime-6.0.0-preview.5.21301.4-win-x86.exe",
+      "Url": "https://github.com/Horiztar/Cylheim-Windows/releases/download/v2.0/Cylheim_2.0_win-x86.7z",
+      "DotNetUrl":"https://download.visualstudio.microsoft.com/download/pr/14c95c30-bc3b-43d9-b569-4e388ab7ab19/2e3b68dc6ee53a6aab3f71ad891215d3/windowsdesktop-runtime-6.0.0-preview.6.21353.1-win-x86.exe",
       "InstallerType": "7z",
       "InstallerArgs": {
         "Root": "win-x86",
