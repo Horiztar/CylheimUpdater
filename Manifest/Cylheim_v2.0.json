@@ -10,8 +10,7 @@
       "Url": "https://github.com/Horiztar/Cylheim-Windows/releases/download/v2.0.1/Cylheim_2.0.1_win-x64.exe",
       "DotNetUrl":"",
       "InstallerType": "exe",
-      "InstallerArgs": {
-      }
+      "InstallerArgs": ""
     },
     {
       "Architecture": "win-x86",
@@ -19,8 +18,7 @@
       "Url": "https://github.com/Horiztar/Cylheim-Windows/releases/download/v2.0.1/Cylheim_2.0.1_win-x86.exe",
       "DotNetUrl":"",
       "InstallerType": "exe",
-      "InstallerArgs": {
-      }
+      "InstallerArgs": ""
     }
   ]
 }
