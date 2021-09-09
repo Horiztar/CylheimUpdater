@@ -1,13 +1,13 @@
 {
   "Name": "Cylheim",
-  "Version": "2.0.3.0",
+  "Version": "2.1.1.0",
   "Description": null,
   "DotNetVer": "",
   "Installers": [
     {
       "Architecture": "win-x64",
       "Sha256": "",
-      "Url": "https://github.com/Horiztar/Cylheim-Windows/releases/download/v2.0.3/Cylheim_2.0.3_win-x64.exe",
+      "Url": "https://github.com/Horiztar/Cylheim-Windows/releases/download/v2.1.1/Cylheim_2.1.1_win-x64.exe",
       "DotNetUrl":"",
       "InstallerType": "exe",
       "InstallerArgs": ""
@@ -15,7 +15,7 @@
     {
       "Architecture": "win-x86",
       "Sha256": "",
-      "Url": "https://github.com/Horiztar/Cylheim-Windows/releases/download/v2.0.3/Cylheim_2.0.3_win-x86.exe",
+      "Url": "https://github.com/Horiztar/Cylheim-Windows/releases/download/v2.1.1/Cylheim_2.1.1_win-x86.exe",
       "DotNetUrl":"",
       "InstallerType": "exe",
       "InstallerArgs": ""
